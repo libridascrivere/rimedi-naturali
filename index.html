@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#C4B5D0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Rimedi Naturali">
+<meta name="description" content="Trova il rimedio omeopatico adatto ai tuoi sintomi.">
+<link rel="manifest" href="manifest.json">
+<title>Rimedi Naturali — Studio B.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream:#F7F3EC;--cream2:#EDE8DE;--lav:#C4B5D0;--lav2:#A899B6;
+  --sage:#6B8F71;--sage2:#4E6B54;--champ:#F5ECD7;--gold:#B8953A;
+  --ink:#2A2A2A;--ink2:#666;--r:16px;--sh:0 4px 24px rgba(0,0,0,.08);
+  --sh2:0 2px 10px rgba(0,0,0,.06);--tr:.22s cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Lora',Georgia,serif;background:var(--cream);color:var(--ink);min-height:100dvh;overscroll-behavior:none}
+#app{display:flex;flex-direction:column;min-height:100dvh}
+.scr{display:none;flex-direction:column;flex:1}
+.scr.on{display:flex}
+.hd{background:#fff;padding:16px 20px 12px;border-bottom:1px solid var(--cream2);position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:10px}
+.hd-brand{font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--lav2)}
+.hd-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;flex:1}
+.btn-back{background:none;border:none;cursor:pointer;font-size:22px;color:var(--ink2);padding:4px;display:flex;align-items:center}
+.btn-ico{background:none;border:none;cursor:pointer;font-size:20px;color:var(--ink2);padding:4px}
+.sb{flex:1;overflow-y:auto;padding:20px 20px 100px;-webkit-overflow-scrolling:touch}
+.hero{background:linear-gradient(135deg,var(--lav) 0%,var(--champ) 100%);border-radius:var(--r);padding:26px 22px;margin-bottom:24px}
+.hero-icon{font-size:38px;display:block;margin-bottom:10px}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;line-height:1.2;margin-bottom:6px}
+.hero p{font-size:13px;color:var(--ink2);font-style:italic;line-height:1.5}
+.srch-wrap{position:relative;margin-bottom:26px}
+.srch-inp{width:100%;padding:13px 16px 13px 44px;border:1.5px solid var(--cream2);border-radius:50px;background:#fff;font-family:'Lora',serif;font-size:14px;color:var(--ink);outline:none;transition:border-color var(--tr),box-shadow var(--tr);box-shadow:var(--sh2)}
+.srch-inp:focus{border-color:var(--lav);box-shadow:0 0 0 3px rgba(196,181,208,.2)}
+.srch-ico{position:absolute;left:15px;top:50%;transform:translateY(-50%);font-size:17px;color:var(--ink2);pointer-events:none}
+.srch-clr{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:var(--lav);border:none;border-radius:50%;width:22px;height:22px;font-size:11px;color:#fff;cursor:pointer;display:none;align-items:center;justify-content:center}
+.srch-clr.show{display:flex}
+.slabel{font-family:'Cormorant Garamond',serif;font-size:12px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--lav2);margin-bottom:12px}
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px}
+.cat-card{background:#fff;border-radius:var(--r);padding:16px 14px;cursor:pointer;border:1.5px solid transparent;box-shadow:var(--sh2);transition:all var(--tr);display:flex;flex-direction:column;gap:7px}
+.cat-card:active{border-color:var(--lav);box-shadow:var(--sh);transform:translateY(-2px)}
+.cat-ico{font-size:26px}
+.cat-name{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600}
+.cat-cnt{font-size:11px;color:var(--ink2)}
+.rimedi-list{display:flex;flex-direction:column;gap:10px}
+.rc{background:#fff;border-radius:var(--r);padding:14px 16px;cursor:pointer;border:1.5px solid transparent;box-shadow:var(--sh2);transition:all var(--tr);display:flex;align-items:center;gap:13px}
+.rc:active{border-color:var(--lav);box-shadow:var(--sh)}
+.rc-emoji{font-size:26px;flex-shrink:0}
+.rc-info{flex:1;min-width:0}
+.rc-nome{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600}
+.rc-tag{font-size:11px;color:var(--ink2);font-style:italic;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rc-score{font-size:11px;font-weight:500;color:var(--sage2);background:rgba(107,143,113,.1);padding:3px 8px;border-radius:50px;white-space:nowrap;flex-shrink:0}
+.rc-fav{font-size:18px;flex-shrink:0;color:var(--lav2);background:none;border:none;cursor:pointer;padding:4px}
+.rc-fav.on{color:var(--gold)}
+.match-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.match-tag{font-size:10px;padding:2px 7px;border-radius:50px;background:rgba(107,143,113,.08);color:var(--sage2)}
+.sint-intro{font-size:13px;color:var(--ink2);font-style:italic;line-height:1.6;margin-bottom:18px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.chip{padding:8px 13px;border-radius:50px;font-family:'Lora',serif;font-size:12px;border:1.5px solid var(--cream2);background:#fff;cursor:pointer;color:var(--ink2);transition:all var(--tr);user-select:none}
+.chip.on{background:var(--lav);border-color:var(--lav);color:#fff;font-weight:500}
+.btn-cerca{width:100%;padding:15px;background:var(--sage);color:#fff;border:none;border-radius:50px;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500;letter-spacing:.05em;cursor:pointer;margin-bottom:10px;transition:background var(--tr),transform var(--tr);box-shadow:0 4px 16px rgba(107,143,113,.3)}
+.btn-cerca:hover{background:var(--sage2);transform:translateY(-1px)}
+.btn-cerca:disabled{background:var(--cream2);color:var(--ink2);box-shadow:none;transform:none;cursor:default}
+.btn-reset{width:100%;padding:11px;background:none;color:var(--ink2);border:1.5px solid var(--cream2);border-radius:50px;font-family:'Lora',serif;font-size:13px;cursor:pointer;transition:all var(--tr)}
+.res-header{font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--ink2);font-style:italic;margin-bottom:18px}
+.no-res{text-align:center;padding:48px 24px;font-family:'Cormorant Garamond',serif;font-size:19px;color:var(--ink2);font-style:italic;line-height:1.7}
+.det-hero{background:linear-gradient(135deg,var(--lav) 0%,var(--champ) 100%);border-radius:var(--r);padding:26px 22px;margin-bottom:20px;position:relative}
+.det-emoji{font-size:48px;display:block;margin-bottom:10px}
+.det-nome{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:600;margin-bottom:4px}
+.det-sub{font-size:12px;color:var(--ink2);font-style:italic}
+.det-fav-btn{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.5);border:none;border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--tr)}
+.det-fav-btn.on{color:var(--gold)}
+.iblock{background:#fff;border-radius:var(--r);padding:18px;margin-bottom:12px;box-shadow:var(--sh2)}
+.iblock-title{font-family:'Cormorant Garamond',serif;font-size:11px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--lav2);margin-bottom:10px}
+.iblock p{font-size:13px;color:var(--ink);line-height:1.7}
+.sint-ul{list-style:none}
+.sint-ul li{font-size:13px;padding:5px 0;border-bottom:1px solid var(--cream2);display:flex;gap:8px;align-items:flex-start}
+.sint-ul li:last-child{border-bottom:none}
+.sint-ul li::before{content:'\B7';color:var(--sage);font-size:18px;line-height:1.1;flex-shrink:0}
+.pot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pot-item{background:var(--cream);border-radius:10px;padding:10px;text-align:center}
+.pot-val{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--sage)}
+.pot-desc{font-size:10px;color:var(--ink2);margin-top:3px}
+.avviso{background:rgba(196,181,208,.15);border-left:3px solid var(--lav);border-radius:8px;padding:13px 15px;font-size:12px;color:var(--ink2);line-height:1.6;font-style:italic;margin-top:12px}
+.avviso.green{border-left-color:var(--sage)}
+.empty{text-align:center;padding:60px 24px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.empty-ico{font-size:48px}
+.empty h2{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--ink2);font-style:italic}
+.empty p{font-size:13px;color:var(--ink2);line-height:1.6}
+.bnav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--cream2);display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));z-index:200}
+.nitem{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:5px 4px;color:var(--ink2);transition:color var(--tr)}
+.nitem.on{color:var(--sage)}
+.nitem-ico{font-size:22px}
+.nitem-lbl{font-family:'Lora',serif;font-size:9px;letter-spacing:.06em;text-transform:uppercase}
+.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--ink);color:#fff;padding:9px 18px;border-radius:50px;font-size:12px;opacity:0;pointer-events:none;transition:all .3s;white-space:nowrap;z-index:999}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+@keyframes fu{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.rc,.cat-card,.iblock{animation:fu .3s ease both}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div id="s-home" class="scr on">
+  <div class="hd">
+    <div style="flex:1"><div class="hd-brand">Studio B.</div><div class="hd-title">Rimedi Naturali</div></div>
+    <button class="btn-ico" id="btn-pref-home">☆</button>
+  </div>
+  <div class="sb">
+    <div class="hero">
+      <span class="hero-icon">🌿</span>
+      <h1>Trova il rimedio</h1>
+      <p>Cerca per sintomo o esplora le categorie per scoprire il rimedio omeopatico piu adatto.</p>
+    </div>
+    <div class="srch-wrap">
+      <span class="srch-ico">🔍</span>
+      <input type="text" class="srch-inp" id="homeSearch" placeholder="Cerca rimedio o sintomo..." autocomplete="off" spellcheck="false">
+      <button class="srch-clr" id="srch-clr">x</button>
+    </div>
+    <div id="srch-results" style="display:none">
+      <div class="slabel">Risultati</div>
+      <div class="rimedi-list" id="srch-list"></div>
+    </div>
+    <div id="home-content">
+      <div class="slabel">Categorie di sintomi</div>
+      <div class="cat-grid" id="cat-grid"></div>
+      <div class="slabel">Tutti i rimedi</div>
+      <div class="rimedi-list" id="all-list"></div>
+    </div>
+  </div>
+</div>
+
+<div id="s-sint" class="scr">
+  <div class="hd">
+    <button class="btn-back" id="back-sint">&#8592;</button>
+    <div class="hd-title" id="sint-title">Sintomi</div>
+  </div>
+  <div class="sb">
+    <p class="sint-intro" id="sint-intro"></p>
+    <div class="slabel">Seleziona i sintomi</div>
+    <div class="chips" id="chips"></div>
+    <button class="btn-cerca" id="btn-cerca" disabled>Trova rimedi</button>
+    <button class="btn-reset" id="btn-reset">Azzera selezione</button>
+  </div>
+</div>
+
+<div id="s-risl" class="scr">
+  <div class="hd">
+    <button class="btn-back" id="back-risl">&#8592;</button>
+    <div class="hd-title">Rimedi trovati</div>
+  </div>
+  <div class="sb">
+    <div class="res-header" id="res-header"></div>
+    <div class="rimedi-list" id="res-list"></div>
+  </div>
+</div>
+
+<div id="s-det" class="scr">
+  <div class="hd">
+    <button class="btn-back" id="back-det">&#8592;</button>
+    <div class="hd-title" id="det-hd-title"></div>
+  </div>
+  <div class="sb" id="det-body"></div>
+</div>
+
+<div id="s-pref" class="scr">
+  <div class="hd">
+    <button class="btn-back" id="back-pref">&#8592;</button>
+    <div class="hd-title">Preferiti</div>
+  </div>
+  <div class="sb">
+    <div class="rimedi-list" id="pref-list"></div>
+  </div>
+</div>
+
+</div>
+
+<nav class="bnav">
+  <button class="nitem on" id="n-home"><span class="nitem-ico">🏠</span><span class="nitem-lbl">Home</span></button>
+  <button class="nitem" id="n-cerca"><span class="nitem-ico">🔎</span><span class="nitem-lbl">Cerca</span></button>
+  <button class="nitem" id="n-pref"><span class="nitem-ico">&#9734;</span><span class="nitem-lbl">Preferiti</span></button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+var DB = [
+  {id:"arnica",nome:"Arnica Montana",emoji:"🌼",tag:"Il rimedio dei traumi per eccellenza",cat:["dolore","locomotore"],
+   sint:["traumi","contusioni","lividi","dolori muscolari","shock fisico","botta","caduta","dopo intervento chirurgico","stanchezza muscolare","ammaccature","distorsioni lievi"],
+   desc:"Arnica montana e il grande rimedio dei traumi fisici. Indicata in tutte le situazioni in cui vi e stato un trauma meccanico, un urto, una caduta. Riduce i lividi, abbatte l'infiammazione e accelera la guarigione dei tessuti.",
+   uso:"Somministrare subito dopo il trauma. Ripetere ogni 15-30 minuti nelle prime ore in caso acuto, poi 3 volte al giorno.",
+   pot:[{v:"7CH",d:"Uso quotidiano"},{v:"9CH",d:"Standard"},{v:"15CH",d:"Shock acuto"}],
+   avv:"Non applicare arnica madre su cute lesa. La forma granuli o gel e sicura.",nota:"Spesso abbinata a Bellis perennis per traumi profondi."},
+
+  {id:"belladonna",nome:"Belladonna",emoji:"🍒",tag:"Febbre alta improvvisa, infiammazione acuta",cat:["febbre","dolore"],
+   sint:["febbre alta","febbre improvvisa","infiammazione acuta","mal di testa pulsante","rossore","calore","congestione","mal di gola rosso","dolore pulsante","otite"],
+   desc:"Belladonna e indicata nei processi infiammatori acuti ad insorgenza rapida e violenta: febbre alta con viso rosso, caldo, pulsante. Il paziente e arrossato e il dolore peggiora col minimo contatto.",
+   uso:"In caso acuto: 5 granuli ogni 30 minuti per 3-4 volte, poi allungare gli intervalli man mano che migliora.",
+   pot:[{v:"9CH",d:"Febbre media"},{v:"15CH",d:"Febbre alta"},{v:"30CH",d:"Casi intensi"}],
+   avv:"In caso di febbre alta nei bambini sotto 3 anni, consultare sempre il pediatra.",nota:"Se la febbre e alta ma il viso e pallido, considerare Gelsemium."},
+
+  {id:"nuxvomica",nome:"Nux Vomica",emoji:"🫘",tag:"Eccessi, digestione, stress da lavoro",cat:["digestione","mente"],
+   sint:["nausea","digestione difficile","eccesso di cibo","eccesso di alcol","irritabilita","insonnia da stress","stitichezza","coliche","crampi addominali","acidita","veglia precoce"],
+   desc:"Nux Vomica e il rimedio dello stacanovista: persona tesa, irritabile, che ha fatto eccessi alimentari o alcolici. Ottimo per i disturbi digestivi mattutini e la costipazione con continuo stimolo inefficace.",
+   uso:"5 granuli 3 volte al giorno lontano dai pasti. In caso acuto ogni 30 minuti fino a miglioramento.",
+   pot:[{v:"9CH",d:"Digestione"},{v:"15CH",d:"Stress"},{v:"30CH",d:"Cronico"}],
+   avv:"Evitare caffe, menta e prodotti mentolati durante il trattamento omeopatico.",nota:"Complementare a Lycopodium per problemi digestivi con gonfiore serale."},
+
+  {id:"pulsatilla",nome:"Pulsatilla",emoji:"💜",tag:"Catarro giallo, pianto, bisogno di calore affettivo",cat:["respiro","mente"],
+   sint:["catarro giallo","catarro verde","sinusite","raffreddore denso","malinconia","pianto facile","bisogno di consolazione","ciclo irregolare","nausea in gravidanza","congiuntivite","ordeolo"],
+   desc:"Pulsatilla corrisponde a una persona dolce, cedevole, con tendenza al pianto. Le secrezioni sono dense e giallo-verdastre. I sintomi peggiorano in ambiente caldo e chiuso, migliorano con le carezze affettive.",
+   uso:"5 granuli 3 volte al giorno. Per i picchi emotivi, assumere all'occorrenza.",
+   pot:[{v:"9CH",d:"Catarro acuto"},{v:"15CH",d:"Emotivo"},{v:"30CH",d:"Costituzionale"}],
+   avv:"In caso di secrezione verde persistente con febbre, consultare il medico per escludere infezione batterica.",nota:"Spesso abbinata a Kali Bichromicum per sinusite con catarro molto denso."},
+
+  {id:"chamomilla",nome:"Chamomilla",emoji:"🌸",tag:"Irritabilita, dolore intollerabile, dentizione",cat:["dolore","mente"],
+   sint:["irritabilita","dolore intollerabile","capricci","dentizione","coliche nel neonato","otite con dolore intenso","bambino inconsolabile","guancia rossa","dolore che peggiora di notte","agitazione"],
+   desc:"Chamomilla e il rimedio dell'irritabilita acuta causata da dolore insopportabile. Classico rimedio per la dentizione nei bambini con guancia rossa, pianto, vuole essere tenuto in braccio.",
+   uso:"In caso acuto: 5 granuli ogni 15-30 minuti fino a calma. Nei bambini: sciogliere i granuli in un cucchiaio d'acqua.",
+   pot:[{v:"9CH",d:"Dolore lieve"},{v:"15CH",d:"Dentizione"},{v:"30CH",d:"Dolore intenso"}],
+   avv:"Se la febbre supera i 39 gradi in bambini piccoli, verificare con il pediatra.",nota:"Se i capricci migliorano con il movimento in auto, Chamomilla e quasi certamente indicata."},
+
+  {id:"rhustox",nome:"Rhus Toxicodendron",emoji:"🌿",tag:"Rigidita mattutina, herpes, dolori che migliorano col movimento",cat:["locomotore","pelle"],
+   sint:["rigidita mattutina","dolori articolari","dolori che migliorano col movimento","dolori che peggiorano a riposo","herpes labiale","herpes zoster","fuoco di SantAntonio","vescicole pruriginose","distorsione","tendinite","zona"],
+   desc:"Rhus Tox e indicato nei dolori articolari e muscolari con caratteristica rigidita al mattino o dopo riposo, che si allevia con il movimento progressivo. Efficace anche nelle eruzioni vescicolari come herpes.",
+   uso:"5 granuli 3 volte al giorno. Per l'herpes: iniziare alla comparsa dei primi sintomi ogni 2 ore le prime 24h poi 3 volte al giorno.",
+   pot:[{v:"9CH",d:"Dolori acuti"},{v:"15CH",d:"Herpes"},{v:"30CH",d:"Cronico"}],
+   avv:"Se il fuoco di SantAntonio interessa l'occhio o causa dolore fortissimo, urgenza medica.",nota:"Complementare a Bryonia: Rhus Tox migliora col movimento, Bryonia peggiora."},
+
+  {id:"bryonia",nome:"Bryonia Alba",emoji:"🌱",tag:"Tutto peggiora col movimento, tosse secca",cat:["dolore","respiro","digestione"],
+   sint:["tosse secca","tosse che peggiora col movimento","pleurite","costipazione","stitichezza senza stimolo","dolori che peggiorano col movimento","cefalea al minimo movimento","sete intensa","mal di testa","dolore al petto","influenza con dolori"],
+   desc:"Bryonia e il rimedio dove tutto e peggio con qualsiasi movimento. Il paziente vuole stare fermo, preferisce la pressione locale, ha grande sete di acqua fredda a grandi sorsi.",
+   uso:"5 granuli 3-4 volte al giorno in fase acuta. Diminuire la frequenza con il miglioramento.",
+   pot:[{v:"9CH",d:"Tosse acuta"},{v:"15CH",d:"Dolori"},{v:"30CH",d:"Influenza"}],
+   avv:"La tosse con espettorato ematico richiede valutazione medica urgente.",nota:"Contrapposto per modalita a Rhus Tox: la scelta tra i due dipende dalla reazione al movimento."},
+
+  {id:"apis",nome:"Apis Mellifica",emoji:"🐝",tag:"Punture di insetti, gonfiori, cistite bruciante",cat:["pelle","dolore"],
+   sint:["puntura di insetto","gonfiore","edema","orticaria","bruciore","reazione allergica cutanea","cistite","bruciore urinario","gonfiore alle palpebre","ritenzione idrica","prurito con bruciore"],
+   desc:"Apis mellifica (veleno d'ape) e il rimedio dei gonfiori e delle reazioni allergiche con sensazione di bruciore e puntura. I sintomi migliorano con applicazioni fredde e peggiorano con il calore.",
+   uso:"Per punture: 5 granuli ogni 15 minuti per la prima ora, poi ogni ora. Per cistite: ogni 2-3 ore.",
+   pot:[{v:"9CH",d:"Gonfiore"},{v:"15CH",d:"Allergia"},{v:"30CH",d:"Edema"}],
+   avv:"In caso di reazione allergica grave con difficolta respiratorie chiamare immediatamente il 118.",nota:"Applicazione locale di ghiaccio (non caldo) associata ad Apis accelera il miglioramento."},
+
+  {id:"arsenicum",nome:"Arsenicum Album",emoji:"⚗️",tag:"Ansia, intossicazione alimentare, gastroenterite",cat:["digestione","mente"],
+   sint:["ansia","paura di morire","intossicazione alimentare","gastroenterite","diarrea con vomito","bruciore che migliora col caldo","prostrazione","agitazione notturna","insonnia da ansia","diarrea","vomito","crampi addominali"],
+   desc:"Arsenicum Album e il rimedio della persona ansiosa, precisa, perfezionista, prostrata ma agitata. Eccellente per intossicazioni alimentari con vomito e diarrea. I bruciori paradossalmente migliorano con il calore.",
+   uso:"In caso acuto (gastroenterite): 5 granuli ogni 30 minuti. Ansia: 3 volte al giorno.",
+   pot:[{v:"9CH",d:"Digestivo"},{v:"15CH",d:"Ansia"},{v:"30CH",d:"Costituzionale"}],
+   avv:"Gastroenterite con vomito e diarrea persistenti causa disidratazione: idratarsi e consultare il medico.",nota:"Se si prende Arsenicum al momento giusto (inizio intossicazione), puo evitare ore di malessere."},
+
+  {id:"ignatia",nome:"Ignatia Amara",emoji:"💔",tag:"Lutto, shock emotivo, singhiozzo da emozione",cat:["mente"],
+   sint:["lutto","shock emotivo","dispiacere","singhiozzo","nodo in gola","tristezza acuta","reazione paradossale","pianto senza motivo","ansia acuta","dolore emotivo","separazione","delusione","insonnia emotiva"],
+   desc:"Ignatia e il rimedio del dolore emotivo acuto, del lutto, della delusione improvvisa. Caratteristica e la contraddizione: ride e piange, ha spasmi e singhiozzo, un nodo in gola.",
+   uso:"5 granuli all'occorrenza, fino a 6 volte al giorno nei momenti di crisi. Non usare cronicamente senza consulenza.",
+   pot:[{v:"9CH",d:"Tristezza"},{v:"15CH",d:"Lutto"},{v:"30CH",d:"Shock"}],
+   avv:"In caso di depressione profonda o pensieri di autolesionismo, rivolgersi a un professionista della salute mentale.",nota:"Spesso seguita da Natrum Muriaticum per il dolore emotivo cronico che si chiude in se stesso."},
+
+  {id:"gelsemium",nome:"Gelsemium",emoji:"🌙",tag:"Influenza con debolezza, ansia da prestazione",cat:["febbre","mente"],
+   sint:["influenza","debolezza","spossatezza","tremore","ansia da prestazione","paura del palco","esami","presentazioni","febbre con brividi","sonnolenza","pesantezza degli arti","mal di testa alla nuca","tremore alle gambe"],
+   desc:"Gelsemium e il rimedio dell'influenza classica che si instaura lentamente con grande debolezza, sonnolenza, tremore. Il viso e pallido, non rosso. Eccellente anche per l'ansia da prestazione (esami, esibizioni).",
+   uso:"Influenza: 5 granuli ogni ora le prime 6 ore poi 3 volte al giorno. Ansia da esame: la sera prima e la mattina dell'evento.",
+   pot:[{v:"9CH",d:"Influenza"},{v:"15CH",d:"Ansia"},{v:"30CH",d:"Shock nervoso"}],
+   avv:"Influenza con dolore toracico, difficolta respiratorie o febbre oltre 40 gradi: valutazione medica urgente.",nota:"La debolezza di Gelsemium e piu pesante e sonnolenta di quella di Arsenicum, che e agitata."},
+
+  {id:"lycopodium",nome:"Lycopodium",emoji:"🦁",tag:"Gonfiore serale, bassa autostima, fegato",cat:["digestione","mente"],
+   sint:["gonfiore addominale","gonfiore serale","gas","meteorismo","digestione lenta","colon irritabile","mancanza di fiducia","ansia anticipatoria","fegato","intolleranza alimentare","stitichezza incompleta"],
+   desc:"Lycopodium e un rimedio costituzionale per persone con grandi capacita intellettuali ma poca fiducia in se stesse. Sul piano fisico: gonfiore addominale che peggiora nel pomeriggio-sera, gas, digestione faticosa.",
+   uso:"5 granuli 2-3 volte al giorno. Meglio la mattina a digiuno per uso costituzionale.",
+   pot:[{v:"9CH",d:"Digestione"},{v:"15CH",d:"Ansia"},{v:"30CH",d:"Costituzionale"}],
+   avv:"Gonfiore persistente con calo di peso o sangue nelle feci: esami medici urgenti.",nota:"Spesso abbinato a Nux Vomica: Lyc. per il pomeriggio-sera, Nux Vom. per il mattino."},
+
+  {id:"mercurius",nome:"Mercurius Solubilis",emoji:"🌡️",tag:"Mal di gola con pus, gengiviti, sudorazione",cat:["febbre","dolore"],
+   sint:["mal di gola","mal di gola con pus","tonsillite","gengivite","ulcere orali","afte","alitosi","sudorazione abbondante","salivazione eccessiva","adenopatie","linfonodi gonfi","stomatite"],
+   desc:"Mercurius Solubilis e il rimedio delle infezioni con tendenza alla suppurazione: tonsilliti con placche, gengiviti con dolore e salivazione. Il paziente suda molto ma non migliora, peggiora di notte.",
+   uso:"5 granuli ogni 2-3 ore in fase acuta. Ridurre quando compaiono miglioramenti.",
+   pot:[{v:"9CH",d:"Locale"},{v:"15CH",d:"Generalizzato"},{v:"30CH",d:"Grave"}],
+   avv:"Tonsillite con febbre alta persistente o difficolta a deglutire: consultare il medico per valutare terapia antibiotica.",nota:"Mercurius Solubilis e la forma piu usata; Mercurius Corrosivus per le forme piu aggressive."},
+
+  {id:"phosphorus",nome:"Phosphorus",emoji:"✨",tag:"Tosse secca, sensibilita, emorragie lievi",cat:["respiro","mente"],
+   sint:["tosse secca","laringite","bronchite","raucedine","paura del buio","paura della solitudine","sensibilita emotiva","emorragia lieve","sangue dal naso","stanchezza","nausea da acqua calda","fotofobia"],
+   desc:"Phosphorus corrisponde a persone vivaci, empatiche, affettuose ma facilmente esauribili. Sul piano fisico: tosse secca che peggiora bevendo acqua calda, raucedine, laringite.",
+   uso:"5 granuli 3 volte al giorno. Per le emorragie locali: piu frequentemente nelle prime ore.",
+   pot:[{v:"9CH",d:"Tosse"},{v:"15CH",d:"Emozioni"},{v:"30CH",d:"Costituzionale"}],
+   avv:"Emorragie abbondanti o persistenti richiedono sempre valutazione medica.",nota:"Phosphorus teme i temporali: la sua sensibilita elettrostatica e caratteristica."},
+
+  {id:"sepia",nome:"Sepia",emoji:"🐙",tag:"Stanchezza femminile, irritabilita, indifferenza",cat:["donna","mente"],
+   sint:["stanchezza","irritabilita","indifferenza affettiva","ciclo doloroso","ciclo irregolare","PMS","menopausa","vampate","depressione post-parto","leucorrea","nausea in gravidanza","avversione al sesso"],
+   desc:"Sepia e un rimedio prevalentemente femminile. La donna Sepia e esausta, irritabile, non vuole essere toccata, si sente sopraffatta dai suoi doveri. Sul piano fisico: ciclo irregolare, dolori pelvici.",
+   uso:"5 granuli 2 volte al giorno per cicli di 20-30 giorni.",
+   pot:[{v:"15CH",d:"Ciclo"},{v:"30CH",d:"Menopausa"},{v:"200K",d:"Costituzionale"}],
+   avv:"In gravidanza, consultare il medico o l'ostetrica prima di qualsiasi trattamento.",nota:"Il paradosso di Sepia: migliora con l'esercizio fisico vigoroso nonostante la stanchezza."},
+
+  {id:"lachesis",nome:"Lachesis Mutus",emoji:"🐍",tag:"Menopausa, vampate, peggiora col sonno",cat:["donna","dolore"],
+   sint:["vampate","menopausa","sudorazione notturna","intolleranza al collare","peggiora dopo il sonno","loquacita","gelosia","mal di gola sinistra","palpitazioni","cefalea","irritabilita pre-mestruale"],
+   desc:"Lachesis corrisponde a persone vivaci, eloquenti, gelose. Fisicamente: intolleranza a qualsiasi costrizione al collo. Tutti i sintomi peggiorano dopo il sonno e migliorano con il flusso.",
+   uso:"5 granuli 2 volte al giorno. Per la menopausa: cicli di trattamento mensili.",
+   pot:[{v:"15CH",d:"Menopausa"},{v:"30CH",d:"Vampate"},{v:"200K",d:"Costituzionale"}],
+   avv:"In caso di disturbi cardiaci, consultare il cardiologo prima di procedere autonomamente.",nota:"In omeopatia classica, Lachesis e Sepia spesso si succedono in menopausa."},
+
+  {id:"aconitum",nome:"Aconitum Napellus",emoji:"❄️",tag:"Paura improvvisa, freddo, inizio malattia acuta",cat:["mente","febbre"],
+   sint:["paura improvvisa","paura di morire","attacco di panico","freddo","dopo esposizione al freddo","inizio improvviso malattia","febbre che inizia di notte","tachicardia da paura","agitazione acuta","ansia acuta","brividi di freddo"],
+   desc:"Aconitum e il rimedio dell'inizio fulminante: tutto comincia improvvisamente, spesso di notte, dopo esposizione al freddo e vento. Grande paura, agitazione, pelle secca e calda.",
+   uso:"Usare SOLO nell'immediato dell'inizio: 5 granuli ogni 15-30 min per 2-3 ore. Se non migliora, cambiare rimedio.",
+   pot:[{v:"9CH",d:"Inizio"},{v:"15CH",d:"Paura"},{v:"30CH",d:"Panico"}],
+   avv:"Aconitum ha una finestra terapeutica breve: e efficace solo all'inizio della malattia. Usato tardi non funziona.",nota:"Ottima combinazione: Aconitum e Belladonna nelle prime ore di febbre alta con inizio improvviso."},
+
+  {id:"hypericum",nome:"Hypericum Perforatum",emoji:"☀️",tag:"Dolori nervosi, traumi delle dita, ferite lacero-contuse",cat:["dolore","pelle"],
+   sint:["dolori nervosi","nevralgia","trauma delle dita","schiacciamento","ferita con dolore acuto","coccige","dolore che risale lungo il nervo","post-estratto dentale","taglio","cicatrice dolorosa"],
+   desc:"Hypericum e l'arnica dei nervi. Indicato per dolori che irradiano lungo il percorso nervoso, traumi in zone ricche di nervi (polpastrelli, coccige). Ottimo dopo estrazioni dentali.",
+   uso:"5 granuli ogni 30 minuti nelle prime ore dopo il trauma, poi 3 volte al giorno.",
+   pot:[{v:"9CH",d:"Dolore locale"},{v:"15CH",d:"Nevralgia"},{v:"30CH",d:"Trauma grave"}],
+   avv:"Dolori neuropatici cronici gravi (ernia del disco, sciatalgia severa): valutazione neurologica necessaria.",nota:"Spesso abbinato ad Arnica: Arnica per i tessuti molli, Hypericum per i nervi."},
+
+  {id:"ledum",nome:"Ledum Palustre",emoji:"🌾",tag:"Punture, lividi freddi, articolazioni che migliorano col freddo",cat:["pelle","locomotore"],
+   sint:["puntura di insetto","livido","occhio nero","articolazioni che migliorano col freddo","gotta","dolori articolari freddi","ferite da puntura","distorsione caviglia","piede"],
+   desc:"Ledum e complementare ad Arnica: indicato quando i tessuti sono freddi al tatto ma il freddo locale porta sollievo. Classico per occhi neri, punture di insetti e distorsioni della caviglia.",
+   uso:"5 granuli ogni ora nelle prime 6 ore, poi 3 volte al giorno. Applicare ghiaccio localmente.",
+   pot:[{v:"9CH",d:"Punture"},{v:"15CH",d:"Lividi"},{v:"30CH",d:"Gotta"}],
+   avv:"Ferite da chiodo o oggetti arrugginiti: verificare lo stato vaccinale antitetanico con il medico.",nota:"Sequenza classica: Arnica (prime 24h) poi Ledum per ferite puntiformi e occhi neri."},
+
+  {id:"magphos",nome:"Magnesia Phosphorica",emoji:"🌀",tag:"Crampi, coliche, dolori che migliorano col calore",cat:["dolore","digestione"],
+   sint:["crampi muscolari","coliche addominali","dolori spasmodici","ciclo doloroso","crampi alle gambe","spasmi","dolori che migliorano col calore","dolori che migliorano con la pressione","mal di stomaco spasmodico"],
+   desc:"Magnesia Phosphorica e il rimedio degli spasmi e dei crampi che migliorano con il calore locale e la pressione. Ottimo per coliche addominali, crampi mestruali, crampi muscolari notturni.",
+   uso:"In 6X in acqua calda (rimedio di Schussler). In CH: 5 granuli ogni 30 minuti fin che dura il dolore.",
+   pot:[{v:"6X",d:"Crampi acuti"},{v:"9CH",d:"Coliche"},{v:"15CH",d:"Ciclo"}],
+   avv:"Dolore addominale acuto, rigidita addominale o febbre: escludere sempre cause chirurgiche urgenti.",nota:"Se metti i granuli in acqua calda e li prendi a piccoli sorsi, l'effetto e piu rapido."},
+
+  {id:"ruta",nome:"Ruta Graveolens",emoji:"🌿",tag:"Tendini, legamenti, occhi affaticati, periostio",cat:["locomotore"],
+   sint:["tendini","legamenti","distorsione","periostio","affaticamento visivo","tendinite","borsite","occhi stanchi","dopo sforzo fisico","tunnel carpale","contrattura","contusione ossea"],
+   desc:"Ruta agisce elettivamente su tendini, legamenti e periostio. Indicato nelle distorsioni dove Arnica non basta, nelle tendiniti e nell'affaticamento oculare da uso prolungato di schermi.",
+   uso:"5 granuli 3 volte al giorno. Per l'affaticamento visivo: 5 granuli alla sera.",
+   pot:[{v:"9CH",d:"Acuto"},{v:"15CH",d:"Tendinite"},{v:"30CH",d:"Cronico"}],
+   avv:"Tendinite o distorsione che non migliorano in 48-72 ore: valutazione fisioterapica o ortopedica.",nota:"Sequenza per distorsioni: Arnica (prime 24h) poi Ruta per i legamenti poi Rhus Tox per la rigidita residua."},
+
+  {id:"silicea",nome:"Silicea",emoji:"💎",tag:"Corpo estraneo, ascessi, timidezza, debolezza cronica",cat:["pelle","mente"],
+   sint:["ascesso","foruncolo","corpo estraneo","scheggia","infezione ricorrente","debolezza immunitaria","timidezza","mancanza di grinta","unghie fragili","capelli fragili","sudore dei piedi maleodorante","cisti"],
+   desc:"Silicea e il rimedio che aiuta l'organismo a espellere i corpi estranei e a portare gli ascessi a maturazione. Corrisponde alla persona gracile, timida, ostinata.",
+   uso:"5 granuli 2 volte al giorno. In omeopatia classica si usa nelle potenze alte per i profili costituzionali.",
+   pot:[{v:"9CH",d:"Ascesso"},{v:"15CH",d:"Immunitario"},{v:"30CH",d:"Costituzionale"}],
+   avv:"ATTENZIONE: Silicea puo espellere protesi o corpi medici impiantati. NON usare in pazienti con pace-maker, protesi o impianti medici.",nota:"Controindicazione importante: evitare assolutamente in pazienti con impianti medici."},
+
+  {id:"sulfur",nome:"Sulfur",emoji:"🔥",tag:"Prurito che peggiora col caldo, pelle secca, calore eccessivo",cat:["pelle","mente"],
+   sint:["prurito","prurito che peggiora col calore","pelle secca","eczema","dermatite","caldo eccessivo","piedi caldi di notte","fame mattutina alle 11","acne","forfora","psoriasi"],
+   desc:"Sulfur e un grande rimedio costituzionale. Fisicamente: gran calore, piedi che scottano di notte, prurito che peggiora col caldo e il bagno caldo.",
+   uso:"Come rimedio costituzionale si usa raramente e a dose singola nelle potenze alte. Per uso locale: 9CH 2 volte al giorno.",
+   pot:[{v:"9CH",d:"Pelle"},{v:"15CH",d:"Prurito"},{v:"30CH",d:"Costituzionale"}],
+   avv:"Non usare Sulfur nelle potenze alte senza supervisione di un omeopata: puo scatenare aggravamenti intensi.",nota:"Sulfur spesso sblocca trattamenti omeopatici che non progrediscono."},
+
+  {id:"ferrum-phos",nome:"Ferrum Phosphoricum",emoji:"🩺",tag:"Febbre iniziale, infiammazione moderata, anemia",cat:["febbre"],
+   sint:["febbre iniziale","febbre moderata","infiammazione iniziale","anemia","pallore","stanchezza","otite iniziale","faringite iniziale","sangue dal naso","tosse secca iniziale","raffreddore inizio"],
+   desc:"Ferrum Phosphoricum e indicato nella prima fase delle malattie infiammatorie, quando i sintomi sono ancora moderati. Copre l'infiammazione lenta e moderata, tra Aconitum e Belladonna.",
+   uso:"5 granuli ogni ora nelle prime 6-8 ore, poi 3 volte al giorno.",
+   pot:[{v:"6X",d:"Inizio"},{v:"9CH",d:"Febbre"},{v:"15CH",d:"Generale"}],
+   avv:"Febbre superiore a 39 gradi nei bambini: consultare il pediatra.",nota:"I tre rimedi di febbre: Aconitum (inizio violento) poi Ferrum Phos (moderato) poi Belladonna (piena infiammazione)."},
+
+  {id:"euphrasia",nome:"Euphrasia",emoji:"👁️",tag:"Congiuntivite, lacrimazione, occhi irritati",cat:["respiro","pelle"],
+   sint:["congiuntivite","lacrimazione abbondante","occhi irritati","occhi rossi","fotofobia","lacrima bruciante","raffreddore con lacrimazione","allergia oculare","prurito agli occhi","blefarite"],
+   desc:"Euphrasia (Eufrasia) e il rimedio classico per gli occhi irritati e infiammati. Le lacrime bruciano e irritano la pelle sottostante, al contrario di Allium Cepa dove le lacrime non bruciano.",
+   uso:"5 granuli 4 volte al giorno. Per allergia: iniziare 2 settimane prima della stagione.",
+   pot:[{v:"9CH",d:"Congiuntivite"},{v:"15CH",d:"Allergia"},{v:"30CH",d:"Cronico"}],
+   avv:"Congiuntivite purulenta o con dolore oculare intenso: visita oculistica urgente.",nota:"Regola mnemonica: Euphrasia = lacrime bruciano, naso no. Allium Cepa = il contrario."},
+
+  {id:"drosera",nome:"Drosera Rotundifolia",emoji:"🌺",tag:"Tosse a crisi, pertosse, laringite spasmodica",cat:["respiro"],
+   sint:["tosse a crisi","tosse spasmodica","pertosse","tosse che peggiora sdraiati","tosse notturna","laringite","raucedine con tosse","tosse con vomito","bronchite spasmodica","croup"],
+   desc:"Drosera e il rimedio delle tosse spasmodiche violente che si susseguono a crisi, spesso con suffocazione, vomito post-tosse, aggravamento di notte o sdraiati. Storico rimedio della pertosse.",
+   uso:"5 granuli ogni ora nelle crisi acute, poi 3 volte al giorno.",
+   pot:[{v:"9CH",d:"Tosse"},{v:"15CH",d:"Spastica"},{v:"30CH",d:"Pertosse"}],
+   avv:"Tosse con difficolta respiratoria o cianosi nei bambini: pronto soccorso pediatrico.",nota:"Spesso abbinata a Spongia per la tosse secca e Ipecacuanha per la tosse con catarro abbondante."},
+
+  {id:"allium-cepa",nome:"Allium Cepa",emoji:"🧅",tag:"Raffreddore acquoso, starnuti, naso che cola",cat:["respiro"],
+   sint:["raffreddore","naso che cola","scolo nasale acquoso","starnuti","lacrimazione non bruciante","allergia stagionale","rinite","naso chiuso al caldo","scolo anteriore abbondante"],
+   desc:"Allium Cepa riproduce esattamente i sintomi che causa la cipolla: naso che cola abbondantemente con lacrime non irritanti. Rimedio di elezione per il raffreddore comune.",
+   uso:"5 granuli ogni ora nelle prime 6 ore, poi 4 volte al giorno.",
+   pot:[{v:"9CH",d:"Raffreddore"},{v:"15CH",d:"Allergia"},{v:"30CH",d:"Rinite"}],
+   avv:"Rinite allergica grave o asma: seguire il piano terapeutico del medico specialista.",nota:"Differenza con Euphrasia: Allium Cepa = muco nasale bruciante, lacrime no."},
+
+  {id:"calcarea",nome:"Calcarea Carbonica",emoji:"🐚",tag:"Sudorazione alla testa, paure, bambini lenti",cat:["mente","donna"],
+   sint:["sudorazione alla testa","paura del buio","paura dei topi","paura del giudizio","bambino lento","bambino paffuto","dentizione tardiva","obesita","ipersensibilita al freddo","stanchezza cronica","ansia di salute","paura di ammalarsi"],
+   desc:"Calcarea Carbonica e un grande rimedio costituzionale per persone solide, lente, ansiose, che hanno paura di ammalarsi. Bambini con dentizione tardiva, testa sudata di notte, pancia grande.",
+   uso:"Come rimedio costituzionale si usa a dose singola o poche volte sotto guida omeopatica. Per sintomi acuti: 9CH 2-3 volte al giorno.",
+   pot:[{v:"9CH",d:"Bambini"},{v:"15CH",d:"Adulti"},{v:"30CH",d:"Costituzionale"}],
+   avv:"Stanchezza cronica persistente: eseguire esami ematici per escludere carenze o patologie.",nota:"Calcarea Carb. e la madre di molti rimedi: spesso apre un trattamento costituzionale."}
+];
+
+var CATS = [
+  {id:"dolore",    nome:"Dolore",              ico:"🤕",desc:"Dolori acuti e cronici, cefalee, nevralgie"},
+  {id:"febbre",    nome:"Febbre",              ico:"🌡️",desc:"Febbre, infiammazione, stati infiammatori"},
+  {id:"digestione",nome:"Digestione",          ico:"🫃",desc:"Disturbi gastrointestinali, nausea, coliche"},
+  {id:"mente",     nome:"Mente e Emozioni",    ico:"🧠",desc:"Ansia, stress, insonnia, stati emotivi"},
+  {id:"pelle",     nome:"Pelle",               ico:"✋",desc:"Eruzioni, prurito, ferite, ustioni"},
+  {id:"respiro",   nome:"Vie Respiratorie",    ico:"🫁",desc:"Tosse, raffreddore, sinusite, bronchite"},
+  {id:"locomotore",nome:"Apparato Locomotore", ico:"🦴",desc:"Articolazioni, muscoli, traumi, tendini"},
+  {id:"donna",     nome:"Disturbi Femminili",  ico:"🌸",desc:"Ciclo, menopausa, gravidanza, PMS"}
+];
+
+var LSPFX="rn_", hist=["s-home"], selSint=[], curCat=null;
+
+function lsGet(k){try{return JSON.parse(localStorage.getItem(LSPFX+k));}catch(e){return null;}}
+function lsSet(k,v){try{localStorage.setItem(LSPFX+k,JSON.stringify(v));}catch(e){}}
+function getPrefs(){return lsGet("pref")||[];}
+function setPrefs(a){lsSet("pref",a);}
+function isPref(id){return getPrefs().indexOf(id)>=0;}
+function togglePref(id){
+  var a=getPrefs(),i=a.indexOf(id);
+  if(i>=0){a.splice(i,1);toast("Rimosso dai preferiti");}
+  else{a.push(id);toast("Aggiunto ai preferiti");}
+  setPrefs(a);return a.indexOf(id)>=0;
+}
+
+function goTo(sid){
+  document.querySelectorAll(".scr").forEach(function(s){s.classList.remove("on");});
+  document.getElementById(sid).classList.add("on");
+  if(hist[hist.length-1]!==sid)hist.push(sid);
+  updateNav(sid);
+}
+function goBack(){
+  if(hist.length>1)hist.pop();
+  var p=hist[hist.length-1]||"s-home";
+  document.querySelectorAll(".scr").forEach(function(s){s.classList.remove("on");});
+  document.getElementById(p).classList.add("on");
+  updateNav(p);
+}
+function updateNav(sid){
+  document.querySelectorAll(".nitem").forEach(function(b){b.classList.remove("on");});
+  if(sid==="s-home")document.getElementById("n-home").classList.add("on");
+  if(sid==="s-pref")document.getElementById("n-pref").classList.add("on");
+  if(sid==="s-sint")document.getElementById("n-cerca").classList.add("on");
+}
+
+function esc(s){
+  return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function rimCard(r,i,matched){
+  var fav=isPref(r.id);
+  var scoreBadge="", matchTagsHtml="";
+  if(matched&&matched.length>0){
+    scoreBadge='<span class="rc-score">'+matched.length+' corr.</span>';
+    var tags=matched.slice(0,3).map(function(s){return '<span class="match-tag">'+esc(s)+'</span>';}).join("");
+    matchTagsHtml='<div class="match-tags">'+tags+'</div>';
+  }
+  return '<div class="rc" data-rid="'+r.id+'" style="animation-delay:'+(i*0.04)+'s">'
+    +'<div class="rc-emoji">'+r.emoji+'</div>'
+    +'<div class="rc-info">'
+    +'<div class="rc-nome">'+esc(r.nome)+'</div>'
+    +'<div class="rc-tag">'+esc(r.tag)+'</div>'
+    +matchTagsHtml
+    +'</div>'
+    +scoreBadge
+    +'<button class="rc-fav'+(fav?' on':'') +'" data-fid="'+r.id+'">'+(fav?'★':'☆')+'</button>'
+    +'</div>';
+}
+
+function renderHome(){
+  var cg=document.getElementById("cat-grid");
+  cg.innerHTML=CATS.map(function(cat,i){
+    var cnt=DB.filter(function(r){return r.cat.indexOf(cat.id)>=0;}).length;
+    return '<div class="cat-card" data-catid="'+cat.id+'" style="animation-delay:'+(i*0.04)+'s">'
+      +'<div class="cat-ico">'+cat.ico+'</div>'
+      +'<div class="cat-name">'+cat.nome+'</div>'
+      +'<div class="cat-cnt">'+cnt+' rimedi</div>'
+      +'</div>';
+  }).join("");
+  var al=document.getElementById("all-list");
+  al.innerHTML=DB.map(function(r,i){return rimCard(r,i,null);}).join("");
+}
+
+function initSearch(){
+  var inp=document.getElementById("homeSearch");
+  var clr=document.getElementById("srch-clr");
+  var wrap=document.getElementById("srch-results");
+  var list=document.getElementById("srch-list");
+  var hcont=document.getElementById("home-content");
+  inp.addEventListener("input",function(){
+    var q=inp.value.trim().toLowerCase();
+    if(!q){clr.classList.remove("show");wrap.style.display="none";hcont.style.display="";return;}
+    clr.classList.add("show");wrap.style.display="";hcont.style.display="none";
+    var res=DB.filter(function(r){
+      return r.nome.toLowerCase().indexOf(q)>=0||r.tag.toLowerCase().indexOf(q)>=0
+        ||r.sint.some(function(s){return s.toLowerCase().indexOf(q)>=0;})
+        ||r.desc.toLowerCase().indexOf(q)>=0;
+    });
+    list.innerHTML=res.length?res.map(function(r,i){return rimCard(r,i,null);}).join(""):'<div class="no-res">Nessun rimedio trovato.</div>';
+  });
+  clr.addEventListener("click",function(){inp.value="";clr.classList.remove("show");wrap.style.display="none";hcont.style.display="";});
+}
+
+function openCat(catId){
+  curCat=catId;selSint=[];
+  var cat=CATS.filter(function(c){return c.id===catId;})[0];
+  document.getElementById("sint-title").textContent=cat.nome;
+  document.getElementById("sint-intro").textContent=cat.desc+". Seleziona uno o piu sintomi:";
+  var rim=DB.filter(function(r){return r.cat.indexOf(catId)>=0;});
+  var all=[];rim.forEach(function(r){r.sint.forEach(function(s){if(all.indexOf(s)<0)all.push(s);});});
+  renderChips(all);hist=["s-home"];goTo("s-sint");
+}
+
+function openCercaGlobale(){
+  curCat=null;selSint=[];
+  document.getElementById("sint-title").textContent="Cerca per sintomo";
+  document.getElementById("sint-intro").textContent="Seleziona i sintomi che stai avvertendo:";
+  var all=[];DB.forEach(function(r){r.sint.forEach(function(s){if(all.indexOf(s)<0)all.push(s);});});
+  all.sort(function(a,b){return a.localeCompare(b,"it");});
+  renderChips(all);hist=["s-home"];goTo("s-sint");
+}
+
+function renderChips(list){
+  var ch=document.getElementById("chips");
+  ch.innerHTML=list.map(function(s){
+    return '<div class="chip" data-sint="'+encodeURIComponent(s)+'">'+esc(s)+'</div>';
+  }).join("");
+  document.getElementById("btn-cerca").disabled=true;
+}
+
+function cerca(){
+  if(!selSint.length)return;
+  var scored=DB.map(function(r){
+    var matched=selSint.filter(function(s){return r.sint.indexOf(s)>=0;});
+    return {r:r,m:matched,s:matched.length};
+  }).filter(function(x){return x.s>0;});
+  scored.sort(function(a,b){return b.s-a.s;});
+  document.getElementById("res-header").textContent=scored.length?scored.length+" rimedi trovati per "+selSint.length+" sintom"+(selSint.length>1?"i":"o"):"";
+  document.getElementById("res-list").innerHTML=scored.length
+    ?scored.map(function(x,i){return rimCard(x.r,i,x.m);}).join("")
+    :'<div class="no-res">Nessun rimedio trovato per i sintomi selezionati.<br><br>Prova a selezionare sintomi diversi o consulta un omeopata.</div>';
+  hist.push("s-risl");
+  document.querySelectorAll(".scr").forEach(function(s){s.classList.remove("on");});
+  document.getElementById("s-risl").classList.add("on");
+  updateNav("s-risl");
+}
+
+function openRimedio(id){
+  var r=DB.filter(function(x){return x.id===id;})[0];if(!r)return;
+  document.getElementById("det-hd-title").textContent=r.nome;
+  var fav=isPref(r.id);
+  document.getElementById("det-body").innerHTML=
+    '<div class="det-hero">'
+    +'<span class="det-emoji">'+r.emoji+'</span>'
+    +'<div class="det-nome">'+esc(r.nome)+'</div>'
+    +'<div class="det-sub">'+esc(r.tag)+'</div>'
+    +'<button class="det-fav-btn'+(fav?' on':'') + '" id="det-fav-btn">'+(fav?'★':'☆')+'</button>'
+    +'</div>'
+    +'<div class="iblock"><div class="iblock-title">Descrizione</div><p>'+esc(r.desc)+'</p></div>'
+    +'<div class="iblock"><div class="iblock-title">Sintomi indicativi</div><ul class="sint-ul">'+r.sint.map(function(s){return'<li>'+esc(s)+'</li>';}).join("")+'</ul></div>'
+    +'<div class="iblock"><div class="iblock-title">Modalita d\'uso</div><p>'+esc(r.uso)+'</p></div>'
+    +'<div class="iblock"><div class="iblock-title">Potenze consigliate</div><div class="pot-grid">'+r.pot.map(function(p){return'<div class="pot-item"><div class="pot-val">'+p.v+'</div><div class="pot-desc">'+p.d+'</div></div>';}).join("")+'</div></div>'
+    +'<div class="iblock"><div class="iblock-title">Note cliniche</div><p>'+esc(r.nota)+'</p></div>'
+    +'<div class="avviso">&#9888;&#65039; '+esc(r.avv)+'</div>'
+    +'<div class="avviso green">&#127807; Questo strumento e a scopo informativo. L\'omeopatia e una disciplina complementare. Consulta sempre un medico o un omeopata qualificato.</div>';
+  document.getElementById("det-fav-btn").addEventListener("click",function(){
+    var saved=togglePref(r.id);
+    this.textContent=saved?'★':'☆';
+    this.className='det-fav-btn'+(saved?' on':'');
+  });
+  goTo("s-det");
+}
+
+function renderPrefs(){
+  var ids=getPrefs(),pl=document.getElementById("pref-list");
+  if(!ids.length){pl.innerHTML='<div class="empty"><div class="empty-ico">&#11088;</div><h2>Nessun preferito ancora</h2><p>Tocca &#9734; su un rimedio per aggiungerlo qui.</p></div>';return;}
+  var rim=ids.map(function(id){return DB.filter(function(r){return r.id===id;})[0];}).filter(Boolean);
+  pl.innerHTML=rim.map(function(r,i){return rimCard(r,i,null);}).join("");
+}
+
+var toastT;
+function toast(msg){
+  var t=document.getElementById("toast");
+  t.textContent=msg;t.classList.add("on");
+  clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove("on");},2200);
+}
+
+function delegateClick(rootId,selector,cb){
+  var el=document.getElementById(rootId);
+  if(!el)return;
+  el.addEventListener("click",function(e){var found=e.target.closest(selector);if(found)cb(found,e);});
+}
+
+document.addEventListener("DOMContentLoaded",function(){
+  renderHome();
+  initSearch();
+
+  delegateClick("cat-grid",".cat-card",function(el){openCat(el.dataset.catid);});
+
+  ["all-list","srch-list","res-list","pref-list"].forEach(function(lid){
+    delegateClick(lid,".rc",function(el,e){if(!e.target.closest(".rc-fav"))openRimedio(el.dataset.rid);});
+    delegateClick(lid,".rc-fav",function(el,e){
+      e.stopPropagation();
+      var saved=togglePref(el.dataset.fid);
+      el.textContent=saved?'★':'☆';
+      el.className='rc-fav'+(saved?' on':'');
+    });
+  });
+
+  document.getElementById("chips").addEventListener("click",function(e){
+    var chip=e.target.closest(".chip");if(!chip)return;
+    var s=decodeURIComponent(chip.dataset.sint);
+    var idx=selSint.indexOf(s);
+    if(idx>=0){selSint.splice(idx,1);chip.classList.remove("on");}
+    else{selSint.push(s);chip.classList.add("on");}
+    document.getElementById("btn-cerca").disabled=selSint.length===0;
+  });
+
+  document.getElementById("btn-cerca").addEventListener("click",cerca);
+  document.getElementById("btn-reset").addEventListener("click",function(){
+    selSint=[];
+    document.querySelectorAll("#chips .chip").forEach(function(c){c.classList.remove("on");});
+    document.getElementById("btn-cerca").disabled=true;
+  });
+
+  document.getElementById("back-sint").addEventListener("click",goBack);
+  document.getElementById("back-risl").addEventListener("click",goBack);
+  document.getElementById("back-det").addEventListener("click",goBack);
+  document.getElementById("back-pref").addEventListener("click",function(){hist=["s-home"];goTo("s-home");});
+  document.getElementById("btn-pref-home").addEventListener("click",function(){renderPrefs();goTo("s-pref");hist=["s-home","s-pref"];});
+  document.getElementById("n-home").addEventListener("click",function(){hist=["s-home"];goTo("s-home");});
+  document.getElementById("n-cerca").addEventListener("click",openCercaGlobale);
+  document.getElementById("n-pref").addEventListener("click",function(){renderPrefs();hist=["s-home","s-pref"];goTo("s-pref");});
+
+  if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(function(){});
+});
+</script>
+</body>
+</html>
